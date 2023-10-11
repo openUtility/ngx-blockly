@@ -8,7 +8,7 @@ An angular wrapper for google's blockly. This time with Angular v16 Support
 
 Install from npm repository:
 ```
-npm install ngx-blockly --save
+npm install ngx-blockly-new --save
 ```
 
 
@@ -20,7 +20,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
-import { NgxBlocklyModule } from 'ngx-blockly';
+import { NgxBlocklyModule } from 'ngx-blockly-new';
 
 import 'blockly/blocks'; // needed if you want to use the blockly default blocks
 
@@ -40,7 +40,7 @@ export class AppModule {
 ```
 'Example app.component.ts'
 ```typescript
-import {NgxBlocklyConfig } from 'ngx-blockly';
+import {NgxBlocklyConfig } from 'ngx-blockly-new';
 
 export class AppComponent {
     
@@ -141,7 +141,7 @@ export class NgxBlocklyConfig {
 ### Code Generation
 ```typescript
 import { Component } from '@angular/core';
-import { NgxBlocklyConfig, NgxBlocklyGeneratorConfig } from 'ngx-blockly';
+import { NgxBlocklyConfig, NgxBlocklyGeneratorConfig } from 'ngx-blockly-new';
 
 @Component({
     selector: 'app-root',
