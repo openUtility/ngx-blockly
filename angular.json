@@ -145,38 +145,38 @@
         }
       }
     },
-    "NgxBlockly": {
-      "root": "projects/ngx-blockly",
-      "sourceRoot": "projects/ngx-blockly/src",
+    "NgxBlocklyNew": {
+      "root": "projects/ngx-blockly-new",
+      "sourceRoot": "projects/ngx-blockly-new/src",
       "projectType": "library",
       "prefix": "ngx",
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
           "options": {
-            "tsConfig": "projects/ngx-blockly/tsconfig.lib.json",
-            "project": "projects/ngx-blockly/ng-package.json"
+            "tsConfig": "projects/ngx-blockly-new/tsconfig.lib.json",
+            "project": "projects/ngx-blockly-new/ng-package.json"
           },
           "configurations": {
             "production": {
-              "tsConfig": "projects/ngx-blockly/tsconfig.lib.prod.json"
+              "tsConfig": "projects/ngx-blockly-new/tsconfig.lib.prod.json"
             }
           }
         },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
-            "main": "projects/ngx-blockly/src/test.ts",
-            "tsConfig": "projects/ngx-blockly/tsconfig.spec.json",
-            "karmaConfig": "projects/ngx-blockly/karma.conf.js"
+            "main": "projects/ngx-blockly-new/src/test.ts",
+            "tsConfig": "projects/ngx-blockly-new/tsconfig.spec.json",
+            "karmaConfig": "projects/ngx-blockly-new/karma.conf.js"
           }
         },
         "lint": {
           "builder": "@angular-devkit/build-angular:tslint",
           "options": {
             "tsConfig": [
-              "projects/ngx-blockly/tsconfig.lib.json",
-              "projects/ngx-blockly/tsconfig.spec.json"
+              "projects/ngx-blockly-new/tsconfig.lib.json",
+              "projects/ngx-blockly-new/tsconfig.spec.json"
             ],
             "exclude": [
               "**/node_modules/**"

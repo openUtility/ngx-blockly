@@ -1,4 +1,4 @@
-import { Blockly } from 'ngx-blockly';
+import { Blockly } from 'ngx-blockly-new';
 
 export class CustomMutator extends Blockly.Mutator {
 

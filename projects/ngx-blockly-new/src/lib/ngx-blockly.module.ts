@@ -9,7 +9,7 @@ import * as Blockly from 'blockly/core';
     providers: [],
     schemas: [NO_ERRORS_SCHEMA]
 })
-export class NgxBlocklyModule {
+export class NgxBlocklyNewModule {
 }
 
 // Still needed?
