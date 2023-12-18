@@ -1,4 +1,4 @@
-import { Blockly, CustomBlock } from 'ngx-blockly-new';
+import { Blockly, CustomBlock } from '@openUtility/ngx-blockly';
 import { ExampleMutator } from './example.mutator';
 
 export class ExampleBlock extends CustomBlock {

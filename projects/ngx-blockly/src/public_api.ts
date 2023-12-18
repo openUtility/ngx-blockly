@@ -24,7 +24,7 @@ export * from './lib/ngx-blockly/models/theme';
 export * from './lib/ngx-blockly/models/node';
 export * from './lib/ngx-blockly/models/block-mutator';
 export * from './lib/ngx-blockly/plugins/ngx-blockly.toolbox';
-export * from './lib/ngx-blockly.module';
+// export * from './lib/ngx-blockly.module';
 
 
 

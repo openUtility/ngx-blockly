@@ -17,7 +17,7 @@ import {
     TEXT_CATEGORY,
     VARIABLES_CATEGORY,
     Blockly
-} from 'ngx-blockly';
+} from '@openUtility/ngx-blockly';
 import { ExampleBlock } from './blocks/example.block';
 
 

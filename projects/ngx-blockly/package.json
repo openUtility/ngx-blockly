@@ -1,13 +1,13 @@
 {
-  "name": "ngx-blockly-new",
+  "name": "ngx-blockly",
   "version": "16.0.1",
   "description": "An angular wrapper for google's blockly.",
   "repository": {
     "type": "git",
-    "url": "https://github.com/LNCrafty/ngx-blockly-new.git"
+    "url": "https://github.com/LNCrafty/ngx-blockly.git"
   },
   "bugs": {
-    "url": "https://github.com/LNCrafty/ngx-blockly-new/issues"
+    "url": "https://github.com/LNCrafty/ngx-blockly/issues"
   },
   "keywords": [
     "angular",
@@ -26,9 +26,9 @@
   },
   "scripts": {
     "build_lib": "ng build NgxBlocklyNew --configuration=production",
-    "copy_script": "cp -r src/scripts ../../dist/ngx-blockly-new",
-    "link": "npm run build_lib && cd ../../dist/ngx-blockly-new && npm link",
-    "publish_lib": "cd ../../dist/ngx-blockly-new && npm publish",
+    "copy_script": "cp -r src/scripts ../../dist/ngx-blockly",
+    "link": "npm run build_lib && cd ../../dist/ngx-blockly && npm link",
+    "publish_lib": "cd ../../dist/ngx-blockly && npm publish",
     "publish": "npm run build_lib && npm run publish_lib"
   }
 }

@@ -20,10 +20,10 @@
       "dom"
     ],
     "paths": {
-      "ngx-blockly": [
+      "@openUtility/ngx-blockly": [
         "dist/ngx-blockly"
       ],
-      "ngx-blockly/*": [
+      "@openUtility/ngx-blockly/*": [
         "dist/ngx-blockly/*"
       ]
     },

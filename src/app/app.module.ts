@@ -2,10 +2,11 @@ import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { NgxBlocklyNewModule } from '../../projects/ngx-blockly-new/src/lib/ngx-blockly.module';
+// import { NgxBlocklyModule } from '@openUtility/ngx-blockly';
 
 
 import 'blockly/blocks';
+import { NgxBlocklyComponent } from '@openUtility/ngx-blockly';
 
 
 @NgModule({
@@ -14,7 +15,8 @@ import 'blockly/blocks';
     ],
     imports: [
         BrowserModule,
-        NgxBlocklyNewModule
+        //NgxBlocklyModule
+        NgxBlocklyComponent
     ],
     providers: [],
     bootstrap: [AppComponent]

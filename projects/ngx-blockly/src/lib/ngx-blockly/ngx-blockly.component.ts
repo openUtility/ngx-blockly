@@ -24,6 +24,7 @@ import { pythonGenerator } from 'blockly/python';
 
 @Component({
   selector: 'ngx-blockly',
+  standalone: true,
   templateUrl: './ngx-blockly.component.html',
   styleUrls: ['./ngx-blockly.component.css']
 })
@@ -315,3 +316,30 @@ export class NgxBlocklyComponent implements OnInit, AfterViewInit, OnChanges, On
     }
   }
 }
+
+
+Blockly.CollapsibleToolboxCategory.prototype.parseContents_ = function (categoryDef) {
+    const contents = categoryDef['contents'];
+    let prevIsFlyoutItem = true;
+    if (categoryDef['custom']) {
+        this.flyoutItems_ = categoryDef['custom'];
+    } else if (contents) {
+        for (let i = 0, itemDef; (itemDef = contents[i]); i++) {
+            // Separators can exist as either a flyout item or a toolbox item so
+            // decide where it goes based on the type of the previous item.
+            if (!Blockly.registry.hasItem(Blockly.registry.Type.TOOLBOX_ITEM, itemDef['kind']) ||
+                (itemDef['kind'].toLowerCase() === Blockly.ToolboxSeparator.registrationName &&
+                    prevIsFlyoutItem)) {
+                const flyoutItem = (itemDef);
+                this.flyoutItems_.push(flyoutItem);
+                prevIsFlyoutItem = true;
+            } else {
+                this.createToolboxItem_(itemDef);
+                prevIsFlyoutItem = false;
+            }
+        }
+    }
+    if (categoryDef['categoryclass']) {
+        this.cssConfig_.row += ' ' + categoryDef['categoryclass'];
+    }
+};
