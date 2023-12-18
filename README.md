@@ -20,7 +20,7 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { AppComponent } from './app.component';
-import { NgxBlocklyModule } from 'ngx-blockly';
+import { NgxBlocklyComponent } from '@openutility/ngx-blockly';
 
 import 'blockly/blocks'; // needed if you want to use the blockly default blocks
 
@@ -30,7 +30,7 @@ import 'blockly/blocks'; // needed if you want to use the blockly default blocks
   ],
   imports: [
     BrowserModule,
-    NgxBlocklyModule
+    NgxBlocklyComponent
   ],
   providers: [],
   bootstrap: [AppComponent]
@@ -40,7 +40,7 @@ export class AppModule {
 ```
 'Example app.component.ts'
 ```typescript
-import {NgxBlocklyConfig } from 'ngx-blockly';
+import {NgxBlocklyConfig } from '@openutility/ngx-blockly';
 
 export class AppComponent {
     
@@ -141,7 +141,7 @@ export class NgxBlocklyConfig {
 ### Code Generation
 ```typescript
 import { Component } from '@angular/core';
-import { NgxBlocklyConfig, NgxBlocklyGeneratorConfig } from 'ngx-blockly';
+import { NgxBlocklyConfig, NgxBlocklyGeneratorConfig } from '@openutility/ngx-blockly';
 
 @Component({
     selector: 'app-root',
