@@ -1,4 +1,4 @@
-import { UUID } from 'angular2-uuid';
+import { v4 } from 'uuid'
 import { Node } from './node';
 import { XmlBlock } from './xml-block';
 
@@ -27,7 +27,7 @@ export class Category implements Node {
         this._custom = custom;
         this._style = style;
         this._cssClass = cssClass;
-        this._toolboxItemId = toolboxItemId ? toolboxItemId : UUID.UUID();
+        this._toolboxItemId = toolboxItemId ? toolboxItemId : v4();
         this._hidden = hidden;
     }
 

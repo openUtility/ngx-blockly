@@ -72,18 +72,18 @@
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "browserTarget": "NgxBlocklyLibrary:build"
+            "buildTarget": "NgxBlocklyLibrary:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "NgxBlocklyLibrary:build:production"
+              "buildTarget": "NgxBlocklyLibrary:build:production"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "NgxBlocklyLibrary:build"
+            "buildTarget": "NgxBlocklyLibrary:build"
           }
         },
         "test": {

@@ -5,7 +5,7 @@
     "entryFile": "src/public_api.ts"
   },
   "allowedNonPeerDependencies": [
-    "angular2-uuid",
+    "uuid",
     "blockly"
   ]
 }

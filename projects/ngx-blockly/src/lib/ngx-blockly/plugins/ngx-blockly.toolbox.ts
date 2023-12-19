@@ -1,4 +1,4 @@
-import { UUID } from 'angular2-uuid';
+import { v4 } from 'uuid';
 import * as Blockly from 'blockly/core';
 import { ICollapsibleToolboxItem, ToolboxCategory } from 'blockly/blockly';
 import { Node } from '../models/node';
@@ -12,7 +12,7 @@ export class NgxBlocklyToolbox extends Blockly.Toolbox {
 
     protected _timeout: any;
     protected _input: HTMLInputElement;
-    protected _categoryId = UUID.UUID();
+    protected _categoryId = v4();
     protected _categoryExpandedCache: Map<String, boolean> = new Map<String, boolean>();
     private _nodes: Node[];
 
