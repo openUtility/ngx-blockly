@@ -1,23 +1,23 @@
-import * as Blockly from 'blockly/core';
+import { Theme as BlocklyTheme } from 'blockly/core';
 
 export class Theme {
     constructor(private name: string,
                 private blockStyles: BlockStyles,
                 private categoryStyles: CategoryStyles,
-                private componentStyle: Blockly.Theme.ComponentStyle) {
+                private componentStyle: BlocklyTheme.ComponentStyle) {
     }
 
     createBlocklyTheme(): any {
-        return new Blockly.Theme(this.name, this.blockStyles, this.categoryStyles, this.componentStyle);
+        return new BlocklyTheme(this.name, this.blockStyles, this.categoryStyles, this.componentStyle);
     }
 }
 
 export interface BlockStyles {
-    [blockStyleName: string]: Blockly.Theme.BlockStyle;
+    [blockStyleName: string]: BlocklyTheme.BlockStyle;
 }
 
 export interface CategoryStyles {
-    [categoryStyleName: string]: Blockly.Theme.CategoryStyle;
+    [categoryStyleName: string]: BlocklyTheme.CategoryStyle;
 }
 
 

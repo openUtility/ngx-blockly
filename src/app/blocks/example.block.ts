@@ -1,21 +1,21 @@
-import { Blockly, CustomBlock } from '@openUtility/ngx-blockly';
-import { ExampleMutator } from './example.mutator';
+// import { Blockly, CustomBlock } from '@openUtility/ngx-blockly';
+// import { ExampleMutator } from './example.mutator';
 
-export class ExampleBlock extends CustomBlock {
+// export class ExampleBlock extends CustomBlock {
 
-    constructor() {
-        super('example_block', new ExampleMutator('example_mutator'));
-        this.class = ExampleBlock;
-    }
+//     constructor() {
+//         super('example_block', new ExampleMutator('example_mutator'));
+//         this.class = ExampleBlock;
+//     }
 
-    public defineBlock() {
-        this.block.appendDummyInput().appendField('example block');
-        this.block.jsonInit({
-            'mutator': 'example_mutator'
-        });
-    }
+//     public defineBlock() {
+//         this.block.appendDummyInput().appendField('example block');
+//         this.block.jsonInit({
+//             'mutator': 'example_mutator'
+//         });
+//     }
 
-    public toPythonCode(block: Blockly.Block): string | any[] {
-        return '';
-    }
-}
+//     public toPythonCode(block: Blockly.Block): string | any[] {
+//         return '';
+//     }
+// }

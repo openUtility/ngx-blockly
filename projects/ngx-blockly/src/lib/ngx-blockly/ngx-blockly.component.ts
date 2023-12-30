@@ -10,146 +10,102 @@ import {
   OnInit,
   Output,
   SimpleChange,
-  ViewChild
+  ViewChild,
+  inject,
+  signal
 } from '@angular/core';
-import { NgxBlocklyConfig, NgxBlocklyGenerator } from './ngx-blockly.config';
-import { CustomBlock } from './models/custom-block';
-import * as Blockly from 'blockly/core';
-import { NgxBlocklyToolbox } from './plugins/ngx-blockly.toolbox';
-import { dartGenerator } from 'blockly/dart';
-import { luaGenerator } from 'blockly/lua';
-import { javascriptGenerator } from 'blockly/javascript';
-import { phpGenerator } from 'blockly/php';
-import { pythonGenerator } from 'blockly/python';
+import { NGX_CONFIG_TOKEN, NgxBlocklyConfig } from './ngx-blockly.config';
+// import { CustomBlock } from './models/custom-block';
+// import * as Blockly from 'blockly/core';
+import { CodeGenerator, WorkspaceSvg, Events } from 'blockly/core';
+import { utils as BlocklyUtils } from 'blockly/core';
+import { Xml as BlocklyXml } from 'blockly/core';
+import { BLOCKLY_TOKEN, BLOCKY_CODE_GENERATORS } from './blockly-injection-token';
+import { CustomBlock } from './models';
+import { extendConfig } from './ngx-blockly-util';
+
+const _defaultConfig: NgxBlocklyConfig = {
+  toolbox: {
+    // There are two kinds of toolboxes. The simpler one is a flyout toolbox.
+    kind: 'flyoutToolbox',
+    // The contents is the blocks and other items that exist in your toolbox.
+    contents: [
+      {
+        kind: 'block',
+        type: 'controls_if'
+      },
+      {
+        kind: 'block',
+        type: 'controls_whileUntil'
+      }
+      // You can add more blocks to this array.
+    ]
+  },
+  trashcan: true,
+}
 
 @Component({
   selector: 'ngx-blockly',
   standalone: true,
-  templateUrl: './ngx-blockly.component.html',
+  template: `
+  <div id="blockly-wrapper" class="blockly-wrapper">
+    <div #primaryContainer class="blockly"></div>
+  </div>
+  `,
+  //styles: ``
   styleUrls: ['./ngx-blockly.component.css']
 })
 export class NgxBlocklyComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
 
-  @Input() public config: NgxBlocklyConfig = {};
-  @Input() public customBlocks: CustomBlock[] = [];
-  @Input() public readOnly = false;
-  @Output() public workspaceCreate: EventEmitter<Blockly.WorkspaceSvg> = new EventEmitter<Blockly.WorkspaceSvg>();
-  @Output() public workspaceChange: EventEmitter<Blockly.Events.AbstractEventJson> = new EventEmitter<Blockly.Events.AbstractEventJson>();
+  private defaultConfig: NgxBlocklyConfig = inject(NGX_CONFIG_TOKEN, { optional: true }) ?? _defaultConfig;
+  private blockly = inject(BLOCKLY_TOKEN);
+  private codeGenerators?: CodeGenerator | CodeGenerator[] = inject(BLOCKY_CODE_GENERATORS, { optional: true });
+
+  @Input() public config?: NgxBlocklyConfig;
+  @Input() public generators?: string | string[];
+  @Input('custom-blocks') public customBlocks?: {[type: string]: CustomBlock};
+  
+  @Output() public workspaceChange: EventEmitter<Events.AbstractEventJson> = new EventEmitter<Events.AbstractEventJson>();
   @Output() public toolboxChange: EventEmitter<any> = new EventEmitter<any>();
-  @Output() public dartCode: EventEmitter<string> = new EventEmitter<string>();
-  @Output() public javascriptCode: EventEmitter<string> = new EventEmitter<string>();
-  @Output() public luaCode: EventEmitter<string> = new EventEmitter<string>();
-  @Output() public phpCode: EventEmitter<string> = new EventEmitter<string>();
-  @Output() public pythonCode: EventEmitter<string> = new EventEmitter<string>();
-  @Output() public xmlCode: EventEmitter<string> = new EventEmitter<string>();
+  @Output() public code = new EventEmitter<{ [key: string]: string }>();
+
+  @Output() public workspaceCreate: EventEmitter<WorkspaceSvg> = new EventEmitter<WorkspaceSvg>();
+  
+
 
   @ViewChild('primaryContainer') primaryContainer: ElementRef;
-  @ViewChild('secondaryContainer') secondaryContainer: ElementRef;
-  public workspace: Blockly.WorkspaceSvg;
-  private _secondaryWorkspace: Blockly.WorkspaceSvg;
+  public workspace: WorkspaceSvg;
   private _resizeTimeout;
-  private _finishedLoading = false;
-
-  public static initCustomBlocks(blocks: CustomBlock[]) {
-    if (blocks) {
-      for (const customBlock of blocks) {
-        Blockly.Blocks[customBlock.type] = {
-          init: function () {
-            const block = new customBlock.class(customBlock.type, customBlock.blockMutator, ...customBlock.args);
-            block.init(this);
-            this.mixin({
-                blockInstance: block
-              }
-            );
-          }
-        };
-        pythonGenerator[customBlock.type] = function (b) {
-          return b.blockInstance.toPythonCode(b);
-        };
-        dartGenerator[customBlock.type] = function (b) {
-          return b.blockInstance.toDartCode(b);
-        };
-        javascriptGenerator[customBlock.type] = function (b) {
-          return b.blockInstance.toJavaScriptCode(b);
-        };
-        luaGenerator[customBlock.type] = function (b) {
-          return b.blockInstance.toLuaCode(b);
-        };
-        phpGenerator[customBlock.type] = function (b) {
-          return b.blockInstance.toPHPCode(b);
-        };
-        if (customBlock.blockMutator) {
-          const mutator_mixin: any = {
-            mutationToDom: function () {
-              return customBlock.blockMutator.mutationToDom.call(customBlock.blockMutator, this);
-            },
-            domToMutation: function (xmlElement: any) {
-              customBlock.blockMutator.domToMutation.call(customBlock.blockMutator, this, xmlElement);
-            },
-            saveExtraState: function () {
-              return customBlock.blockMutator.saveExtraState.call(customBlock.blockMutator);
-            },
-            loadExtraState: function (state: any) {
-              customBlock.blockMutator.loadExtraState.call(customBlock.blockMutator, state);
-            }
-          };
-          if (customBlock.blockMutator.blockList && customBlock.blockMutator.blockList.length > 0) {
-            mutator_mixin.decompose = function (workspace: any) {
-              return customBlock.blockMutator.decompose.call(customBlock.blockMutator, this, workspace);
-            };
-            mutator_mixin.compose = function (topBlock: any) {
-              customBlock.blockMutator.compose.call(customBlock.blockMutator, this, topBlock);
-            };
-            mutator_mixin.saveConnections = function (containerBlock: any) {
-              customBlock.blockMutator.saveConnections.call(customBlock.blockMutator, this, containerBlock);
-            };
-          }
-          Blockly.Extensions.unregister(customBlock.blockMutator.name);
-          Blockly.Extensions.registerMutator(
-            customBlock.blockMutator.name,
-            mutator_mixin,
-            function () {
-              customBlock.blockMutator.afterBlockInit.call(customBlock.blockMutator, this);
-            },
-            customBlock.blockMutator.blockList
-          );
-        }
-      }
-    }
-  }
+  private workspaceState = signal<{ loadPending: boolean }>({ loadPending: false });
 
   ngOnInit() {
-    NgxBlocklyComponent.initCustomBlocks(this.customBlocks);
+    // NgxBlocklyComponent.initCustomBlocks(this.customBlocks);
   }
 
   ngAfterViewInit() {
-    const readOnly = this.config.readOnly || this.readOnly;
-    this.config.readOnly = false;
-    this.workspace = Blockly.inject(this.primaryContainer.nativeElement, this.config);
+    const passedConfig = extendConfig(this.defaultConfig, this.config ?? {});
+    
+    if (this.customBlocks) {
+      this.blockly.common.defineBlocks(this.customBlocks);
+    }
+    this.workspace = this.blockly.inject(this.primaryContainer.nativeElement, passedConfig);
     this.workspace.addChangeListener(this._onWorkspaceChange.bind(this));
-    this.workspace.fireChangeListener(new Blockly.Events.FinishedLoading());
+    this.workspace.fireChangeListener(new this.blockly.Events.FinishedLoading());
     this.workspaceCreate.emit(this.workspace);
     this.resize();
-    if (readOnly) {
-      this.setReadonly(true);
-      this.config.readOnly = true;
-    }
+
   }
 
   ngOnChanges(changes: { [propKey: string]: SimpleChange }) {
     // skip this if the change comes before we are initialized
-    if (changes.readOnly && this._secondaryWorkspace) {
-      this.setReadonly(changes.readOnly.currentValue);
-    }
+    
   }
 
   ngOnDestroy() {
     if (this.workspace) {
       this.workspace.dispose();
     }
-    if (this._secondaryWorkspace) {
-      this._secondaryWorkspace.dispose();
-    }
+    
   }
 
   @HostListener('window:resize', ['$event'])
@@ -163,61 +119,40 @@ export class NgxBlocklyComponent implements OnInit, AfterViewInit, OnChanges, On
    * @param workspaceId Workspace to generate code from.
    */
   public workspaceToCode(workspaceId: string) {
-    for (const generator of this.config.generators) {
-      switch (generator) {
-        case NgxBlocklyGenerator.DART:
-          this.dartCode.emit(dartGenerator.workspaceToCode(Blockly.Workspace.getById(workspaceId)));
-          break;
-        case NgxBlocklyGenerator.LUA:
-          this.luaCode.emit(luaGenerator.workspaceToCode(Blockly.Workspace.getById(workspaceId)));
-          break;
-        case NgxBlocklyGenerator.JAVASCRIPT:
-          this.javascriptCode.emit(javascriptGenerator.workspaceToCode(Blockly.Workspace.getById(workspaceId)));
-          break;
-        case NgxBlocklyGenerator.PHP:
-          this.phpCode.emit(phpGenerator.workspaceToCode(Blockly.Workspace.getById(workspaceId)));
-          break;
-        case NgxBlocklyGenerator.PYTHON:
-          this.pythonCode.emit(pythonGenerator.workspaceToCode(Blockly.Workspace.getById(workspaceId)));
-          break;
-        case NgxBlocklyGenerator.XML:
-          this.xmlCode.emit(Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(Blockly.Workspace.getById(workspaceId))));
-          break;
+    const limitGeneratorsTo = !this.generators ? [] : Array.isArray(this.generators) ? [...this.generators] : [this.generators];
+    
+    if (!this.codeGenerators) {
+      return
+    }
+    const __workspace = this.blockly.Workspace.getById(workspaceId);
+    const noFilter = limitGeneratorsTo.length === 0;
+    
+    if (!Array.isArray(this.codeGenerators)) {
+      if (noFilter || this.filterListContainsGenerator(limitGeneratorsTo, this.codeGenerators as CodeGenerator)) {
+        this.code.emit({ name: this.codeGenerators.name_ ?? 'Unknown', code: this.codeGenerators.workspaceToCode(__workspace) });
       }
+      return;
+    }
+    let match = false;
+    const data = this.codeGenerators.reduce((p, c, i) => {
+      if (noFilter || this.filterListContainsGenerator(limitGeneratorsTo, c)) {
+        match = true;
+        p[c.name_ ?? `Unknown #${i}`] = c.workspaceToCode(__workspace);
+      }
+      return p;
+    }, {});
+    
+    if (match) {
+      this.code.emit(data);
     }
   }
 
-  /**
-   * Converts a DOM structure into properly indented text.
-   * @return Text representation.
-   */
-  public toXml(): string {
-    return Blockly.Xml.domToPrettyText(Blockly.Xml.workspaceToDom(this.workspace));
+  private filterListContainsGenerator(filterList: string[], codeGen: CodeGenerator): boolean {
+    return filterList.findIndex(fl => this.isGenerartorByName(codeGen, fl)) > -1;
   }
 
-  /**
-   * Clear the given workspace then decode an XML DOM and
-   * create blocks on the workspace.
-   * @param xml XML DOM..
-   */
-  public fromXml(xml: string) {
-    this._finishedLoading = false;
-    Blockly.Xml.clearWorkspaceAndLoadFromXml(Blockly.Xml.textToDom(xml), this.workspace);
-    if (this._secondaryWorkspace) {
-      Blockly.Xml.clearWorkspaceAndLoadFromXml(Blockly.Xml.textToDom(xml), this._secondaryWorkspace);
-    }
-  }
-
-  /**
-   * Decode an XML DOM and create blocks on the workspace. Position the new
-   * blocks immediately below prior blocks, aligned by their starting edge.
-   * @param xml The XML DOM.
-   */
-  public appendFromXml(xml: string) {
-    Blockly.Xml.appendDomToWorkspace(Blockly.Xml.textToDom(xml), this.workspace);
-    if (this._secondaryWorkspace) {
-      Blockly.Xml.appendDomToWorkspace(Blockly.Xml.textToDom(xml), this._secondaryWorkspace);
-    }
+  private isGenerartorByName(codeGen: CodeGenerator, name: string): boolean {
+    return (codeGen.name_ ?? 'unknown').toLowerCase() === name.toLowerCase();
   }
 
   /**
@@ -247,17 +182,6 @@ export class NgxBlocklyComponent implements OnInit, AfterViewInit, OnChanges, On
     }
   }
 
-  /**
-   * Clear search input and result set.
-   */
-  public clearSearch() {
-    if (this.workspace) {
-      const toolbox = this.workspace.getToolbox() as NgxBlocklyToolbox;
-      if (toolbox && typeof toolbox.clearSearch === 'function') {
-        toolbox.clearSearch();
-      }
-    }
-  }
 
   /**
    * Size the workspace when the contents change. This also updates
@@ -265,81 +189,33 @@ export class NgxBlocklyComponent implements OnInit, AfterViewInit, OnChanges, On
    */
   public resize() {
     if (this.workspace) {
-      Blockly.svgResize(this.workspace);
+      this.blockly.svgResize(this.workspace);
     }
-    if (this._secondaryWorkspace) {
-      Blockly.svgResize(this._secondaryWorkspace);
-    }
-  }
-
-  public setReadonly(readOnly: boolean) {
-    this.readOnly = readOnly;
-    if (readOnly) {
-      this.secondaryContainer.nativeElement.classList.remove('hidden');
-      if (!this._secondaryWorkspace) {
-        const config = { ...this.config };
-        config.readOnly = true;
-        this._secondaryWorkspace = Blockly.inject(this.secondaryContainer.nativeElement, config);
-      }
-      Blockly.Xml.clearWorkspaceAndLoadFromXml(Blockly.Xml.textToDom(this.toXml()), this._secondaryWorkspace);
-      Blockly.svgResize(this._secondaryWorkspace);
-    } else {
-      if (this._secondaryWorkspace) {
-        this.secondaryContainer.nativeElement.classList.add('hidden');
-      }
-    }
+    
   }
 
   public highlightBlock(blockId: string) {
     if (this.workspace) {
       this.workspace.highlightBlock(blockId);
     }
-    if (this._secondaryWorkspace) {
-      this._secondaryWorkspace.highlightBlock(blockId);
-    }
+    
   }
 
   private _onWorkspaceChange(event: any) {
     this.workspaceChange.emit(event);
-    if (event.type === Blockly.Events.FINISHED_LOADING) {
-      this._finishedLoading = true;
+    if (event.type === Events.FINISHED_LOADING) {
+      this.workspaceState.update(f => ({...f, loadPending: false}));
     }
-    if (this._finishedLoading) {
-      if (event instanceof Blockly.Events.BlockBase ||
-        event instanceof Blockly.Events.VarBase ||
-        event instanceof Blockly.Events.CommentBase) {
+    if (!this.workspaceState().loadPending) {
+      if (event instanceof Events.BlockBase ||
+        event instanceof Events.VarBase ||
+        event instanceof Events.CommentBase) {
         this.workspaceToCode(event.workspaceId);
       }
-      if (event.type === Blockly.Events.TOOLBOX_ITEM_SELECT) {
+      if (event.type === Events.TOOLBOX_ITEM_SELECT) {
         this.toolboxChange.emit(event);
       }
+      
     }
   }
 }
-
-
-Blockly.CollapsibleToolboxCategory.prototype.parseContents_ = function (categoryDef) {
-    const contents = categoryDef['contents'];
-    let prevIsFlyoutItem = true;
-    if (categoryDef['custom']) {
-        this.flyoutItems_ = categoryDef['custom'];
-    } else if (contents) {
-        for (let i = 0, itemDef; (itemDef = contents[i]); i++) {
-            // Separators can exist as either a flyout item or a toolbox item so
-            // decide where it goes based on the type of the previous item.
-            if (!Blockly.registry.hasItem(Blockly.registry.Type.TOOLBOX_ITEM, itemDef['kind']) ||
-                (itemDef['kind'].toLowerCase() === Blockly.ToolboxSeparator.registrationName &&
-                    prevIsFlyoutItem)) {
-                const flyoutItem = (itemDef);
-                this.flyoutItems_.push(flyoutItem);
-                prevIsFlyoutItem = true;
-            } else {
-                this.createToolboxItem_(itemDef);
-                prevIsFlyoutItem = false;
-            }
-        }
-    }
-    if (categoryDef['categoryclass']) {
-        this.cssConfig_.row += ' ' + categoryDef['categoryclass'];
-    }
-};

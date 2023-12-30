@@ -1,79 +1,56 @@
-import { BlockMutator } from './block-mutator';
-import { Block } from './block';
-import * as Blockly from 'blockly/core';
+import { BlockDefinition } from "blockly/core/blocks";
 
-export abstract class CustomBlock extends Block {
+export interface BlockArguments {
+    /** The type specifies the kind of input or field to be inserted. */
+    type: string;
+    /** The name allows you to reference the field and get its value. */
+    name?: string;
 
-    private _block: Blockly.Block;
-    private _blockMutator: BlockMutator;
-    private _args: any[];
+    options?: [string, string];
+
+    align?: 'RIGHT' | 'LEFT';
+    /** ??? not sure what this was... */
+    check?: string;
+
+    variable?: string,
+    variableTypes?: string[];
+
+    checked?: boolean;
+}
+
+export interface CustomBlock extends BlockDefinition {
+    /**
+     * The type is like the "class name" for your block. It is used to construct
+     * new instances. E.g. in the toolbox.
+     */
+    type: string;
+
+    /**
+     * The message defines the basic text of your block, and where inputs or
+     * fields will be inserted.
+     */
+    message0?: string;
+
+    /**
+     * Each arg is associated with a %# in the message.
+     * This one gets substituted for %1.
+     */
+    args0?: BlockArguments[];
+
+    /** 
+     * Adds an untyped previous connection to the top of the block.
+     * AKA: list of types this can be attached to 
+     */
+    previousStatement?: string | string[];
+    /** 
+     * Adds an untyped next connection to the bottom of the block.
+     * AKA list of types that can attached to this
+     */
+    nextStatement?: string | string[];
 
 
-    protected constructor(type: string, blockMutator?: BlockMutator, ...args: any[]) {
-        super(type);
-        this._blockMutator = blockMutator ? blockMutator : null;
-        this._args = args;
-    }
-
-    public init(block: Blockly.Block) {
-        this._block = block;
-        this.defineBlock();
-        this.block.setOnChange(function (event) {
-            this.blockInstance.onChange(event);
-        });
-    }
-
-    public abstract defineBlock();
-
-    public onChange(changeEvent: Blockly.Events.AbstractEventJson) {
-        // nothing to do
-    }
-
-    public toXML(): string {
-        return `<block type="${this.type}" disabled="${this.disabled}"></block>`;
-    }
-
-    public toDartCode(block: Blockly.Block): string | any[] {
-        return 'Not implemented';
-    }
-
-    public toJavaScriptCode(block: Blockly.Block): string | any[] {
-        return 'Not implemented';
-    }
-
-    public toLuaCode(block: Blockly.Block): string | any[] {
-        return 'Not implemented';
-    }
-
-    public toPHPCode(block: Blockly.Block): string | any[] {
-        return 'Not implemented';
-    }
-
-    public toPythonCode(block: Blockly.Block): string | any[] {
-        return 'Not implemented';
-    }
-
-    get block():  Blockly.Block {
-        return this._block;
-    }
-
-    set block(block:  Blockly.Block) {
-        this._block = block;
-    }
-
-    get blockMutator(): BlockMutator {
-        return this._blockMutator;
-    }
-
-    set blockMutator(mutator: BlockMutator) {
-        this._blockMutator = mutator;
-    }
-
-    get args(): any[] {
-        return this._args;
-    }
-
-    set args(args: any[]) {
-        this._args = args;
-    }
+    output?: string;
+    colour?: number;
+    tooltip?: string;
+    helpUrl?: string;
 }

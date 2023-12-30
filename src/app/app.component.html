@@ -1,4 +1,4 @@
-<ngx-blockly
+<!-- <ngx-blockly
     #blockly
     [config]="config"
     [readOnly]="readOnly"
@@ -9,4 +9,12 @@
     (xmlCode)="onCode($event)"
     (dartCode)="onCode($event)"
     (phpCode)="onCode($event)">
+</ngx-blockly> -->
+<ngx-blockly
+    #blockly
+    [config]="config"
+    generators="javascript"
+    [custom-blocks]="blocks"
+    (code)="onCode($event)"
+    >
 </ngx-blockly>

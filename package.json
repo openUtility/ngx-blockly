@@ -7,7 +7,9 @@
     "build": "ng build",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "watch:component": "ng build --project NgxBlockly --watch",
+    "build:component": "ng build --project NgxBlockly --configuration production"
   },
   "private": true,
   "dependencies": {
@@ -19,7 +21,7 @@
     "@angular/platform-browser": "^17.0.7",
     "@angular/platform-browser-dynamic": "^17.0.7",
     "@angular/router": "^17.0.7",
-    "blockly": "^9.2.1",
+    "blockly": "^10.3.0",
     "core-js": "^2.6.5",
     "rxjs": "~6.6.3",
     "tslib": "^2.3.1",
