@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectionStrategy,
   Component,
   ElementRef,
   EventEmitter,
@@ -18,8 +19,8 @@ import { NGX_CONFIG_TOKEN, NgxBlocklyConfig } from './ngx-blockly.config';
 // import { CustomBlock } from './models/custom-block';
 // import * as Blockly from 'blockly/core';
 import { CodeGenerator, WorkspaceSvg, Events } from 'blockly/core';
-import { utils as BlocklyUtils } from 'blockly/core';
-import { Xml as BlocklyXml } from 'blockly/core';
+// import { utils as BlocklyUtils } from 'blockly/core';
+// import { Xml as BlocklyXml } from 'blockly/core';
 import { BLOCKLY_TOKEN, BLOCKY_CODE_GENERATORS } from './blockly-injection-token';
 import { CustomBlock } from './models';
 import { extendConfig } from './ngx-blockly-util';
@@ -29,17 +30,7 @@ const _defaultConfig: NgxBlocklyConfig = {
     // There are two kinds of toolboxes. The simpler one is a flyout toolbox.
     kind: 'flyoutToolbox',
     // The contents is the blocks and other items that exist in your toolbox.
-    contents: [
-      {
-        kind: 'block',
-        type: 'controls_if'
-      },
-      {
-        kind: 'block',
-        type: 'controls_whileUntil'
-      }
-      // You can add more blocks to this array.
-    ]
+    contents: []
   },
   trashcan: true,
 }
@@ -52,8 +43,28 @@ const _defaultConfig: NgxBlocklyConfig = {
     <div #primaryContainer class="blockly"></div>
   </div>
   `,
-  //styles: ``
-  styleUrls: ['./ngx-blockly.component.css']
+  styles: `
+  .blockly-wrapper {
+    width: 100%;
+    height: 100%;
+  }
+
+  .blockly {
+    position: absolute;
+    width: 100%;
+    min-width: 100%;
+    height: 100%;
+    min-height: 100%;
+    z-index: 1;
+    &.hidden {
+      display: none;
+      z-index: 0;
+    }
+  }
+
+  `,
+  changeDetection: ChangeDetectionStrategy.OnPush,
+  
 })
 export class NgxBlocklyComponent implements OnInit, AfterViewInit, OnChanges, OnDestroy {
 
@@ -61,30 +72,30 @@ export class NgxBlocklyComponent implements OnInit, AfterViewInit, OnChanges, On
   private blockly = inject(BLOCKLY_TOKEN);
   private codeGenerators?: CodeGenerator | CodeGenerator[] = inject(BLOCKY_CODE_GENERATORS, { optional: true });
 
-  @Input() public config?: NgxBlocklyConfig;
-  @Input() public generators?: string | string[];
-  @Input('custom-blocks') public customBlocks?: {[type: string]: CustomBlock};
+  @Input() public config: NgxBlocklyConfig = {};
+  @Input() public generators: string | string[] = [];
+  @Input() public customBlocks?: {[type: string]: CustomBlock};
   
   @Output() public workspaceChange: EventEmitter<Events.AbstractEventJson> = new EventEmitter<Events.AbstractEventJson>();
   @Output() public toolboxChange: EventEmitter<any> = new EventEmitter<any>();
   @Output() public code = new EventEmitter<{ [key: string]: string }>();
-
-  @Output() public workspaceCreate: EventEmitter<WorkspaceSvg> = new EventEmitter<WorkspaceSvg>();
+  @Output() public workspaceCreate = new EventEmitter<WorkspaceSvg>();
   
-
-
   @ViewChild('primaryContainer') primaryContainer: ElementRef;
   public workspace: WorkspaceSvg;
   private _resizeTimeout;
   private workspaceState = signal<{ loadPending: boolean }>({ loadPending: false });
 
   ngOnInit() {
-    // NgxBlocklyComponent.initCustomBlocks(this.customBlocks);
   }
 
   ngAfterViewInit() {
-    const passedConfig = extendConfig(this.defaultConfig, this.config ?? {});
-    
+    const passedConfig = extendConfig(this.defaultConfig, this.config);
+
+    // todo: this raises a good question, 
+    // should the other items, like mutators and custom generators be generated
+    // this way, or directly through blockly... I'll have to think on that...
+
     if (this.customBlocks) {
       this.blockly.common.defineBlocks(this.customBlocks);
     }
@@ -109,7 +120,7 @@ export class NgxBlocklyComponent implements OnInit, AfterViewInit, OnChanges, On
   }
 
   @HostListener('window:resize', ['$event'])
-  onResize(event) {
+  onResize(event: Event) {
     clearTimeout(this._resizeTimeout);
     this._resizeTimeout = setTimeout(() => this.resize(), 200);
   }
@@ -119,7 +130,7 @@ export class NgxBlocklyComponent implements OnInit, AfterViewInit, OnChanges, On
    * @param workspaceId Workspace to generate code from.
    */
   public workspaceToCode(workspaceId: string) {
-    const limitGeneratorsTo = !this.generators ? [] : Array.isArray(this.generators) ? [...this.generators] : [this.generators];
+    const limitGeneratorsTo = Array.isArray(this.generators) ? [...this.generators] : [this.generators];
     
     if (!this.codeGenerators) {
       return

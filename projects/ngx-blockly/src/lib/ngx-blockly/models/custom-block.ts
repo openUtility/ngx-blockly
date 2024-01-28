@@ -10,7 +10,7 @@ export interface BlockArguments {
 
     align?: 'RIGHT' | 'LEFT';
     /** ??? not sure what this was... */
-    check?: string;
+    check?: string | string[];
 
     variable?: string,
     variableTypes?: string[];

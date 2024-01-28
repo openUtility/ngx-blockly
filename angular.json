@@ -150,6 +150,11 @@
       "sourceRoot": "projects/ngx-blockly/src",
       "projectType": "library",
       "prefix": "ngx",
+      "schematics": {
+        "@schematics/angular:component": {
+          "style": "scss"
+        }
+      },
       "architect": {
         "build": {
           "builder": "@angular-devkit/build-angular:ng-packagr",
@@ -158,6 +163,7 @@
             "project": "projects/ngx-blockly/ng-package.json"
           },
           "configurations": {
+            
             "production": {
               "tsConfig": "projects/ngx-blockly/tsconfig.lib.prod.json"
             }

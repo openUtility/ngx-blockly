@@ -1,32 +1,31 @@
 import { BrowserModule } from '@angular/platform-browser';
-import { NgModule } from '@angular/core';
+import { NgModule, importProvidersFrom } from '@angular/core';
 
 import { AppComponent } from './app.component';
-import { Order, javascriptGenerator } from 'blockly/javascript';
-import { luaGenerator } from 'blockly/lua';
-// import { NgxBlocklyModule } from '@openUtility/ngx-blockly';
+
+import { FormConfigService } from './form-config.service';
+import { ReactiveFormsModule } from '@angular/forms';
+import { FormlyBootstrapModule } from '@ngx-formly/bootstrap';
+import { FormlyModule } from '@ngx-formly/core';
+import { FormPageComponent } from './form-page.component';
+import { RouterModule, Routes } from '@angular/router';
+import { BlocklyPageComponent } from './blockly-page.component';
+
+ 
 
 
-import 'blockly/blocks';
-import { NgxBlocklyComponent, BLOCKY_CODE_GENERATORS } from '@openUtility/ngx-blockly';
+const appRoutes: Routes = [
+    {
+        path: '', component: BlocklyPageComponent, providers: [
 
- javascriptGenerator.forBlock['page'] = function(block, generator) {
-     // String or array length.
-     
-    const statement = generator.statementToCode(block, 'input_statement');
-        // Get the field value.
-    const fieldValue = block.getFieldValue('FIELDNAME');
+    ]},
+    {
+        path: 'form', component: FormPageComponent, providers: [
+            importProvidersFrom(FormlyModule.forRoot())
+    ]},
+  ];
+  
 
-    // Concatenate the code.
-    const code = `${statement}: ${fieldValue} some more code`;
-
-    // Return the code.
-     return code;
-     
-
-    // var argument0 = generator.valueToCode(block, 'FIELDNAME', Order.FUNCTION_CALL) || '\'\'';
-    // return [argument0 + '.checked', Order.MEMBER];
-};
 
 @NgModule({
     declarations: [
@@ -35,19 +34,14 @@ import { NgxBlocklyComponent, BLOCKY_CODE_GENERATORS } from '@openUtility/ngx-bl
     imports: [
         BrowserModule,
         //NgxBlocklyModule
-        NgxBlocklyComponent
+        ReactiveFormsModule,
+        RouterModule.forRoot(
+            appRoutes, 
+        )
     ],
     providers: [
-        {
-            provide: BLOCKY_CODE_GENERATORS,
-            useValue: javascriptGenerator,
-            multi: true
-        },
-        {
-            provide: BLOCKY_CODE_GENERATORS,
-            useValue: luaGenerator,
-            multi: true
-        },
+        
+        FormConfigService
     ],
     bootstrap: [AppComponent]
 })
