@@ -6,15 +6,14 @@ import { FormConfigService } from './form-config.service';
 import { JsonPipe } from '@angular/common';
 
 @Component({
-  selector: 'app-form-page',
-  standalone: true,
-  imports: [
-    JsonPipe,
-    ReactiveFormsModule,
-    FormlyModule,
-    FormlyBootstrapModule,
-  ],
-  template: `
+    selector: 'app-form-page',
+    imports: [
+        JsonPipe,
+        ReactiveFormsModule,
+        FormlyModule,
+        FormlyBootstrapModule,
+    ],
+    template: `
   <main class="container">
     <h1>Form</h1>
     <form [formGroup]="form">
@@ -31,8 +30,8 @@ import { JsonPipe } from '@angular/common';
     </section>
     </main>
   `,
-  styles: ``,
-  changeDetection: ChangeDetectionStrategy.OnPush,
+    styles: ``,
+    changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FormPageComponent {
   private readonly changeRef = inject(ChangeDetectorRef);

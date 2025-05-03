@@ -16,16 +16,15 @@ import { BlockSvg, RenderedConnection, utils } from 'blockly/core';
 import { FormlyFieldConfig } from '@ngx-formly/core';
 
 @Component({
-  selector: 'app-blockly-page',
-  standalone: true,
-  imports: [
-    CommonModule,
-    NgxBlocklyComponent,
-  ],
-  providers: [
-    BLOCKLY_GENERATORS
-  ],
-  template: `
+    selector: 'app-blockly-page',
+    imports: [
+        CommonModule,
+        NgxBlocklyComponent,
+    ],
+    providers: [
+        BLOCKLY_GENERATORS
+    ],
+    template: `
   <ngx-blockly
       #blockly
       [config]="config"
@@ -36,7 +35,7 @@ import { FormlyFieldConfig } from '@ngx-formly/core';
       >
     </ngx-blockly>
   `,
-  styles: ``
+    styles: ``
 })
 export class BlocklyPageComponent {
   public readOnly = false;
